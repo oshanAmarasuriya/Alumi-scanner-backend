@@ -1,0 +1,96 @@
+{
+ "schema": 1,
+ "version": 2,
+ "created": "2026-09-26T18:35:19+00:00",
+ "model_id": "mnv4s_arcface_v1",
+ "embedding_dim": 256,
+ "count": 12,
+ "vectors_file": "gallery.f32",
+ "vectors_sha256": "f62bde872107f2dcdc384a741fb6a34c132c20c979b676f0372af08fc77f6563",
+ "sections": [
+  {
+   "code": "AL-1038",
+   "role": "training",
+   "width_mm": 24.32,
+   "height_mm": 25.42,
+   "cavities": 0
+  },
+  {
+   "code": "AL-1263",
+   "role": "training",
+   "width_mm": 50.77,
+   "height_mm": 50.73,
+   "cavities": 1
+  },
+  {
+   "code": "AL-507",
+   "role": "training",
+   "width_mm": 40.02,
+   "height_mm": 12.0,
+   "cavities": 2
+  },
+  {
+   "code": "AL-633",
+   "role": "training",
+   "width_mm": 70.02,
+   "height_mm": 15.0,
+   "cavities": 1
+  },
+  {
+   "code": "AL-800",
+   "role": "training",
+   "width_mm": 53.04,
+   "height_mm": 78.06,
+   "cavities": 1
+  },
+  {
+   "code": "AL-821",
+   "role": "training",
+   "width_mm": 53.08,
+   "height_mm": 50.07,
+   "cavities": 1
+  },
+  {
+   "code": "AL-822",
+   "role": "training",
+   "width_mm": 53.12,
+   "height_mm": 90.18,
+   "cavities": 1
+  },
+  {
+   "code": "AL-823",
+   "role": "training",
+   "width_mm": 64.98,
+   "height_mm": 49.94,
+   "cavities": 1
+  },
+  {
+   "code": "AL-845",
+   "role": "eval_holdout",
+   "width_mm": 38.5,
+   "height_mm": 57.96,
+   "cavities": 1
+  },
+  {
+   "code": "AL-851",
+   "role": "training",
+   "width_mm": 59.88,
+   "height_mm": 34.92,
+   "cavities": 0
+  },
+  {
+   "code": "AL-963",
+   "role": "eval_holdout",
+   "width_mm": 33.97,
+   "height_mm": 53.98,
+   "cavities": 1
+  },
+  {
+   "code": "BYR-002",
+   "role": "training",
+   "width_mm": 25.32,
+   "height_mm": 14.09,
+   "cavities": 2
+  }
+ ]
+}
