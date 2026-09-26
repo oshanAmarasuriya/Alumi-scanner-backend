@@ -1,2 +1,7 @@
-* text=auto eol=lf
-*.bat text eol=crlf
+* text=auto
+
+# Signed byte for byte: git must not translate line endings in a release manifest, or a checkout on
+# another machine would no longer match its signature.
+releases/**/gallery.json -text
+*.sig binary
+*.f32 binary

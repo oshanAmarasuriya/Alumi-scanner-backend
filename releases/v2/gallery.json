@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "version": 2,
- "created": "2026-09-26T18:35:19+00:00",
+ "created": "2026-09-26T18:39:08+00:00",
  "model_id": "mnv4s_arcface_v1",
  "embedding_dim": 256,
  "count": 12,
