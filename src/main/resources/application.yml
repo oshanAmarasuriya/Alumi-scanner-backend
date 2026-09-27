@@ -1,14 +1,18 @@
 spring:
   application.name: alumex-gallery-server
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/alumex_gallery}
-    username: ${DB_USER:alumex}
-    password: ${DB_PASSWORD:}
-  jpa:
-    hibernate.ddl-auto: validate      # Flyway owns the schema; Hibernate only checks it
-    open-in-view: false
-    properties.hibernate.jdbc.lob.non_contextual_creation: true
-  flyway.enabled: true
+    # One file, no server, no credentials. Fifteen phones syncing a few times a day is not a
+    # workload that needs a database process, and a backup is a file copy.
+    #   WAL           readers never block the writer
+    #   busy_timeout  a phone waits rather than failing if a write is in flight
+    url: ${DB_URL:jdbc:sqlite:file:./data/gallery.db?journal_mode=WAL&busy_timeout=5000&foreign_keys=on}
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      maximum-pool-size: 4
+      pool-name: sqlite
+  sql.init:
+    mode: always                    # schema.sql is idempotent; see the note there
+    continue-on-error: false
   servlet.multipart:
     max-file-size: 64MB
     max-request-size: 128MB

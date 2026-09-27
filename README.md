@@ -1,36 +1,38 @@
 # Alumex gallery server
 
 Distributes the section catalogue to installed scanners, and keeps a record of which device holds
-which version. Spring Boot (Kotlin), PostgreSQL.
+which version. Java 21, Spring Boot, SQLite.
 
 It does **not** hold the signing key. Releases are signed where they are produced, and this server
 only stores and serves the signed bytes — it verifies them on the way in so a bad export is caught
 here rather than by every phone in the warehouse. If this machine is breached, the worst that can be
 served is an old catalogue or none at all, never a forged one.
 
-## Setting it up
+## Why SQLite
 
-**1. Create the database.** Run this yourself, as the Postgres superuser, choosing a password:
+Fifteen devices syncing a few times a day is not a workload that needs a database process. SQLite is
+one file next to the jar: no service, no user, no password, and a backup is a copy. It costs nothing
+on a small server, where PostgreSQL would want a couple of hundred megabytes of RAM to sit idle.
 
-```bash
-psql -U postgres -c "CREATE USER alumex WITH PASSWORD 'choose-a-password';" -c "CREATE DATABASE alumex_gallery OWNER alumex;"
+WAL mode and a busy timeout are set in the connection URL, so readers never block the writer and a
+phone waits rather than fails if a write is in flight.
+
+Data access is plain SQL through `JdbcClient` rather than an ORM — three tables and a dozen
+statements. That also keeps the door open: moving to PostgreSQL later would mean new DDL and a
+driver, not unpicking what a mapper decided to do.
+
+## Running it
+
+No database to create. Copy the settings file, fill in an admin token, run:
+
 ```
-
-**2. Point the server at it, and give it the public key and an admin token:**
-
-```
-set DB_URL=jdbc:postgresql://localhost:5432/alumex_gallery
-set DB_USER=alumex
-set DB_PASSWORD=choose-a-password
-set GALLERY_PUBLIC_KEY=<contents of keys/gallery_public_key.b64>
-set ADMIN_TOKEN=<any long random string>
-```
-
-**3. Run it.** Flyway creates the schema on first start.
-
-```bash
+copy .env.example .env
 gradlew bootRun
 ```
+
+`.env` needs two things: `ADMIN_TOKEN` (any long random string, required to publish) and
+`GALLERY_PUBLIC_KEY` (already filled in from `keys/gallery_public_key.b64`). The schema is created
+on first start and the database appears at `data/gallery.db`.
 
 ## Publishing a catalogue
 
@@ -84,7 +86,8 @@ For an administrator, with `X-Admin-Token`:
 ## What it stores
 
 * `gallery_release` — the signed releases, manifest and vectors as bytes. 614 KB per release at 600
-  sections, so the database is the simplest place for them.
+  sections, comfortably inside SQLite's 1 GB per-value limit, and keeping them here means the whole
+  server state is one file to back up.
 * `client_device` — one row per install: the id the app generates, what phone it is, what version it
   holds, when it was last seen and last updated. There is no login and no user identity.
 * `sync_event` — who asked for what, and when. This is the record of which devices are running the
