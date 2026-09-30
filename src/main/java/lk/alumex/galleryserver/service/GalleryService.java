@@ -15,6 +15,8 @@ import java.util.Optional;
 import lk.alumex.galleryserver.domain.ClientDevice;
 import lk.alumex.galleryserver.domain.GalleryDao;
 import lk.alumex.galleryserver.domain.GalleryRelease;
+import lk.alumex.galleryserver.domain.GuideIndexEntry;
+import lk.alumex.galleryserver.domain.PackingGuide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -153,6 +155,26 @@ public class GalleryService {
         dao.insertRelease(release);
         log.info("published gallery v{}: {} sections, model {}", version, count, modelId);
         return release;
+    }
+
+    // ---------------------------------------------------------------- packing guides
+
+    /** Stores (or replaces) a packing guide PDF for a section. */
+    @Transactional
+    public void uploadGuide(String sectionCode, byte[] pdfBytes) {
+        String hash = sha256(pdfBytes);
+        dao.upsertGuide(sectionCode, pdfBytes, hash, Instant.now());
+        log.info("uploaded packing guide for {} ({} bytes, sha256 {})", sectionCode, pdfBytes.length, hash);
+    }
+
+    /** Returns the index of all packing guides: section codes and their hashes, no blobs. */
+    public List<GuideIndexEntry> guideIndex() {
+        return dao.listGuideIndex();
+    }
+
+    /** Returns the raw PDF bytes for one section, if a guide exists. */
+    public Optional<byte[]> guidePdf(String sectionCode) {
+        return dao.findGuide(sectionCode).map(PackingGuide::pdf);
     }
 
     private void verifySignature(byte[] manifest, byte[] signature) {

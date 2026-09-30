@@ -150,6 +150,32 @@ public class GalleryDao {
                 .update();
     }
 
+    // ---------------------------------------------------------------- packing guides
+
+    public void upsertGuide(String sectionCode, byte[] pdf, String sha256, Instant uploadedAt) {
+        db.sql("""
+                insert into packing_guide (section_code, pdf, sha256, uploaded_at)
+                values (?, ?, ?, ?)
+                on conflict (section_code) do update
+                   set pdf = excluded.pdf, sha256 = excluded.sha256, uploaded_at = excluded.uploaded_at
+                """)
+                .params(sectionCode, pdf, sha256, uploadedAt.toString())
+                .update();
+    }
+
+    public Optional<PackingGuide> findGuide(String sectionCode) {
+        return db.sql("select * from packing_guide where section_code = ?")
+                .param(sectionCode)
+                .query(GalleryDao::toGuide)
+                .optional();
+    }
+
+    public List<GuideIndexEntry> listGuideIndex() {
+        return db.sql("select section_code, sha256 from packing_guide order by section_code")
+                .query((rs, row) -> new GuideIndexEntry(rs.getString("section_code"), rs.getString("sha256")))
+                .list();
+    }
+
     // ---------------------------------------------------------------- mapping
 
     private static GalleryRelease toRelease(ResultSet rs, int row) throws SQLException {
@@ -186,5 +212,13 @@ public class GalleryDao {
     private static Instant instant(ResultSet rs, String column) throws SQLException {
         String value = rs.getString(column);
         return value == null ? null : Instant.parse(value);
+    }
+
+    private static PackingGuide toGuide(ResultSet rs, int row) throws SQLException {
+        return new PackingGuide(
+                rs.getString("section_code"),
+                rs.getBytes("pdf"),
+                rs.getString("sha256"),
+                Instant.parse(rs.getString("uploaded_at")));
     }
 }
