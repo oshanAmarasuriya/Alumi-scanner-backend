@@ -6,5 +6,6 @@ RUN chmod +x gradlew && ./gradlew bootJar --no-daemon
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /src/build/libs/*.jar app.jar
+RUN mkdir -p /app/data
 EXPOSE 8080
 CMD ["java", "-jar", "app.jar"]
