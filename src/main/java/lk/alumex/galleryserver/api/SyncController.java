@@ -2,7 +2,9 @@ package lk.alumex.galleryserver.api;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
+import java.util.List;
 import lk.alumex.galleryserver.domain.GalleryRelease;
+import lk.alumex.galleryserver.domain.GuideIndexEntry;
 import lk.alumex.galleryserver.service.GalleryService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -92,6 +94,21 @@ public class SyncController {
             gallery.recordDownload(deviceId, version, clientIp(request), request.getHeader(HttpHeaders.USER_AGENT));
         }
         return bytes(release.vectors(), MediaType.APPLICATION_OCTET_STREAM);
+    }
+
+    // ---------------------------------------------------------------- packing guides
+
+    @GetMapping("/guides/index")
+    public List<GuideIndexEntry> guideIndex() {
+        return gallery.guideIndex();
+    }
+
+    @GetMapping("/guides/{code}")
+    public ResponseEntity<byte[]> guidePdf(@PathVariable String code) {
+        return gallery.guidePdf(code)
+                .map(pdf -> bytes(pdf, MediaType.APPLICATION_PDF))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "no packing guide for " + code));
     }
 
     private GalleryRelease require(int version) {

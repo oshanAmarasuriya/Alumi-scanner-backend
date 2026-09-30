@@ -54,3 +54,10 @@ create table if not exists sync_event (
 
 create index if not exists sync_event_device_at_idx on sync_event (device_id, at desc);
 create index if not exists sync_event_at_idx on sync_event (at desc);
+
+create table if not exists packing_guide (
+    section_code text primary key,
+    pdf          blob    not null,
+    sha256       text    not null,
+    uploaded_at  text    not null
+);

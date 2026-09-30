@@ -50,6 +50,22 @@ public class AdminController {
                 gallery.publish(manifest.getBytes(), signature.getBytes(), vectors.getBytes(), notes));
     }
 
+    @PostMapping("/guides")
+    public Map<String, String> uploadGuide(@RequestHeader("X-Admin-Token") String token,
+                                           @RequestParam("code") String code,
+                                           @RequestParam("pdf") MultipartFile pdf) throws Exception {
+        authorise(token);
+        if (code == null || code.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "a section code is required");
+        }
+        byte[] bytes = pdf.getBytes();
+        if (bytes.length < 4 || bytes[0] != '%' || bytes[1] != 'P' || bytes[2] != 'D' || bytes[3] != 'F') {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the file does not look like a PDF");
+        }
+        gallery.uploadGuide(code, bytes);
+        return Map.of("status", "ok", "sectionCode", code, "size", String.valueOf(bytes.length));
+    }
+
     @GetMapping("/devices")
     public List<Map<String, Object>> devices(@RequestHeader("X-Admin-Token") String token) {
         authorise(token);
